@@ -1,12 +1,24 @@
 import {EpisodeRm} from "@/lib/types/episode";
+import {buildProductionEpisodeUrl, formatDuration, getAvailableMediaKinds} from "@/lib/helpers/episodeHelpers";
 
 type EpisodeProps = {
     episode: EpisodeRm,
     index: number
 }
+function getMediaLabel(episode: EpisodeRm): string {
+    const mediaKinds = getAvailableMediaKinds(episode);
+
+    if (mediaKinds.length === 0) {
+        return "Brak mediów";
+    }
+
+    return mediaKinds.join(" + ");
+}
 
 export function Episode({episode, index}: EpisodeProps) {
-    const productionUrl = `https://www.polskieradio.pl/podcasty/${episode.podcastSlug}/${episode.slug}`
+    const productionUrl = buildProductionEpisodeUrl(episode);
+    const mediaLabel = getMediaLabel(episode)
+    const hasMedia = mediaLabel.length > 0
     return <>
         <div
             className="aspect-square w-20 shrink-0 overflow-hidden rounded-md bg-zinc-100 sm:w-24 dark:bg-zinc-900">
@@ -39,6 +51,17 @@ export function Episode({episode, index}: EpisodeProps) {
                     <span>{episode.title ?? "Odcinek bez tytułu"}</span>
                 )}
             </h3>
+            <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
+                {formatDuration(episode.audioDuration ?? episode.videoDuration)}{" "}
+                · {mediaLabel}
+                </p>
+                <button
+                type="button"
+                onClick={()=>{}}
+               disabled={!hasMedia}
+               className="mt-3 min-h-11 rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 disabled:cursor-not-allowed disabled:bg-zinc-300 disabled:text-zinc-500 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white dark:disabled:bg-zinc-800 dark:disabled:text-zinc-500">
+                Otwórz
+                </button>
         </div>
     </>
 }
