@@ -33,7 +33,7 @@ export function getAvailableMediaKinds(
     return kinds;
 }
 
-export function buildProductionEpisodeUrl(
+export function buildEpisodePageUrl(
     episode: Partial<Pick<EpisodeRm, "podcastSlug" | "slug">>,
 ): string | null {
     if (!episode.podcastSlug || !episode.slug) {

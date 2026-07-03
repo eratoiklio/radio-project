@@ -1,5 +1,9 @@
 import {EpisodeRm} from "@/lib/types/episode";
-import {buildProductionEpisodeUrl, formatDuration, getAvailableMediaKinds} from "@/lib/helpers/episodeHelpers";
+import {
+    buildEpisodePageUrl,
+    formatDuration,
+    getAvailableMediaKinds
+} from "@/lib/helpers/episodeHelpers";
 
 type EpisodeProps = {
     episode: EpisodeRm,
@@ -16,7 +20,7 @@ function getMediaLabel(episode: EpisodeRm): string {
 }
 
 export function Episode({episode, index}: EpisodeProps) {
-    const productionUrl = buildProductionEpisodeUrl(episode);
+    const episodePageUrl = buildEpisodePageUrl(episode);
     const mediaLabel = getMediaLabel(episode)
     const hasMedia = mediaLabel.length > 0
     return <>
@@ -41,9 +45,9 @@ export function Episode({episode, index}: EpisodeProps) {
                 {episode.podcastTitle ?? "Podcast Polskiego Radia"}
             </p>
             <h3 className="mt-1 wrap-break-word font-medium">
-                {productionUrl ? (
+                {episodePageUrl ? (
                     <a
-                        href={productionUrl}
+                        href={episodePageUrl}
                         className="hover:underline"
                         rel="noopener norefferrer">
                         {episode.title ?? "Odcinek bez tytułu"}

@@ -1,4 +1,4 @@
-import {apiFetch} from "@/lib/api/client";
+import {apiFetch} from "./client";
 const EPISODES_PATH =
     process.env.POLISH_RADIO_EPISODES_PATH ??
     "/podcast-episodes/read-models";
@@ -8,18 +8,25 @@ export interface GetEpisodesOptions {
     pageSize?: number;
 }
 export async function getEpisodes(options: GetEpisodesOptions = {}) {
-    const {pageNumber, pageSize} = options
+    const { pageNumber, pageSize } = options;
+
     const query = new URLSearchParams({
         pageNumber: String(pageNumber),
         pageSize: String(pageSize)
     });
 
-    const payload = await apiFetch(`${EPISODES_PATH}?${query}`, { cache: "no-store" });
+    const response = await apiFetch(
+        `${EPISODES_PATH}?${query}`,
+        { cache: "no-store" }
+    );
+
+    const payload = await response.json();
+
     if (!payload || typeof payload !== "object") {
         throw new Error(
-            "Polish Radio API returned an unexpected episodes response",
+            "Polish Radio API returned an unexpected episodes response"
         );
     }
- return payload;
 
+    return payload;
 }

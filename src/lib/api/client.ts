@@ -5,7 +5,7 @@ function getApiBaseUrl(): string {
 
     if(!apiBaseUrl) {
         throw new Error(
-            "Missing required enviroment variable: NEXT_PUBLIC_API_BASE_URL"
+            "Missing required environment variable: NEXT_PUBLIC_API_BASE_URL"
         )
     }
     return apiBaseUrl.replace(/\+$/, "")
