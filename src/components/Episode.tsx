@@ -1,3 +1,5 @@
+"use client"
+
 import {EpisodeRm} from "@/lib/types/episode";
 import {
     buildEpisodePageUrl,
