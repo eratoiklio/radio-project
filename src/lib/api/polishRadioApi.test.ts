@@ -11,7 +11,8 @@ const fetchMock = vi.fn<typeof fetch>();
 beforeEach(() => {
     process.env.NEXT_PUBLIC_API_BASE_URL =
         "https://cms-gateway.polskieradio.pl/dev-proxy";
-    delete process.env.POLISH_RADIO_MEDIA_CDN_BASE_URL;
+    process.env.POLISH_RADIO_MEDIA_CDN_BASE_URL =
+        "https://cdn6.polskieradio.pl";
     vi.stubGlobal("fetch", fetchMock);
 });
 

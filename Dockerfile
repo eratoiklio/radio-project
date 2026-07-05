@@ -1,6 +1,7 @@
 FROM node:22-alpine AS builder
 
 ENV NEXT_PUBLIC_API_BASE_URL=https://cms-gateway.polskieradio.pl/dev-proxy
+ENV POLISH_RADIO_MEDIA_CDN_BASE_URL=https://cdn6.polskieradio.pl
 
 RUN corepack enable
 
@@ -21,6 +22,7 @@ ENV NODE_ENV=production
 ENV HOSTNAME=0.0.0.0
 ENV PORT=3000
 ENV NEXT_PUBLIC_API_BASE_URL=https://cms-gateway.polskieradio.pl/dev-proxy
+ENV POLISH_RADIO_MEDIA_CDN_BASE_URL=https://cdn6.polskieradio.pl
 
 RUN addgroup --system --gid 1001 nodejs \
     && adduser --system --uid 1001 nextjs

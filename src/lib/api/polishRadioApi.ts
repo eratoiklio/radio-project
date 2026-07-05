@@ -11,8 +11,6 @@ const AUDIO_PATH =
     process.env.POLISH_RADIO_AUDIO_PATH ?? "/audio";
 const VIDEO_PATH =
     process.env.POLISH_RADIO_VIDEO_PATH ?? "/video";
-const DEFAULT_MEDIA_CDN_BASE_URL = "https://cdn6.polskieradio.pl";
-
 type MediaKind = "audio" | "video";
 export interface GetEpisodesOptions {
     pageNumber: number;
@@ -76,9 +74,13 @@ function isEpisodeRm(value: unknown): value is EpisodeRm {
 }
 
 function getMediaCdnBaseUrl(): URL {
-    const configuredUrl =
-        process.env.POLISH_RADIO_MEDIA_CDN_BASE_URL ??
-        DEFAULT_MEDIA_CDN_BASE_URL;
+    const configuredUrl = process.env.POLISH_RADIO_MEDIA_CDN_BASE_URL;
+
+    if (!configuredUrl) {
+        throw new PolishRadioApiError(
+            "Missing required environment variable: POLISH_RADIO_MEDIA_CDN_BASE_URL",
+        );
+    }
 
     try {
         return new URL(configuredUrl.endsWith("/") ? configuredUrl : `${configuredUrl}/`);
