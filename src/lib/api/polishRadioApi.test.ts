@@ -11,6 +11,7 @@ const fetchMock = vi.fn<typeof fetch>();
 beforeEach(() => {
     process.env.NEXT_PUBLIC_API_BASE_URL =
         "https://cms-gateway.polskieradio.pl/dev-proxy";
+    delete process.env.POLISH_RADIO_MEDIA_CDN_BASE_URL;
     vi.stubGlobal("fetch", fetchMock);
 });
 
@@ -214,7 +215,7 @@ describe("normalizePlaybackUri", () => {
     it("replaces the origin and converts an audio WAV path to MP3", () => {
         expect(
             normalizePlaybackUri(
-                "https://dev-cms-gateway.polskieradio.pl/cms/dev/audio.wav?token=1",
+                "https://cdn6.polskieradio.pl/cms/dev/audio.wav?token=1",
                 "audio",
             ),
         ).toBe("https://cdn6.polskieradio.pl/cms/dev/audio.mp3?token=1");
@@ -223,7 +224,7 @@ describe("normalizePlaybackUri", () => {
     it("does not change a video file extension", () => {
         expect(
             normalizePlaybackUri(
-                "https://cms-gateway.polskieradio.pl/cms/dev/video.m3u8",
+                "https://cdn6.polskieradio.pl/cms/dev/video.m3u8",
                 "video",
             ),
         ).toBe("https://cdn6.polskieradio.pl/cms/dev/video.m3u8");
