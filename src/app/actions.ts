@@ -4,7 +4,7 @@ import {
     getEpisodes,
     type EpisodesPage,
     type GetEpisodesOptions,
-} from "../lib/api/polishRadioApi";
+} from "@/lib/api/polishRadioApi";
 
 export async function loadMoreEpisodes(
     nextPage: GetEpisodesOptions,

@@ -64,3 +64,9 @@ export function formatDuration(
 ): string {
     return formatSeconds(durationSeconds);
 }
+
+export function formatPlaybackTime(
+    playbackSeconds: number | null | undefined,
+): string {
+    return formatSeconds(playbackSeconds);
+}

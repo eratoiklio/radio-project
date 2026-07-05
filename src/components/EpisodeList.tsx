@@ -1,13 +1,14 @@
 "use client"
 
-import type {EpisodeRm} from '../lib/types/episode';
+import type {EpisodeRm} from '@/lib/types/episode';
 import {Episode} from "./Episode"
 
 export interface EpisodeListProps {
     episodes: EpisodeRm[]
+    onPlay: (episode: EpisodeRm) => void;
 }
 
-export function EpisodeList({episodes}: EpisodeListProps) {
+export function EpisodeList({episodes, onPlay}: EpisodeListProps) {
     return (
         <ul className="grid gap-4">
             {episodes.map((episode, index) => {
@@ -16,6 +17,7 @@ export function EpisodeList({episodes}: EpisodeListProps) {
                     <Episode
                         index={index}
                         episode={episode}
+                        onPlay={onPlay}
                     /></li>
             })}
         </ul>

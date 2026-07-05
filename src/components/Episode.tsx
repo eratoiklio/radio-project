@@ -9,6 +9,7 @@ import {
 
 type EpisodeProps = {
     episode: EpisodeRm,
+    onPlay: (episode: EpisodeRm) => void;
     index: number
 }
 function getMediaLabel(episode: EpisodeRm): string {
@@ -21,7 +22,7 @@ function getMediaLabel(episode: EpisodeRm): string {
     return mediaKinds.join(" + ");
 }
 
-export function Episode({episode, index}: EpisodeProps) {
+export function Episode({episode, onPlay, index}: EpisodeProps) {
     const episodePageUrl = buildEpisodePageUrl(episode);
     const mediaLabel = getMediaLabel(episode)
     const hasMedia = mediaLabel.length > 0
@@ -63,7 +64,7 @@ export function Episode({episode, index}: EpisodeProps) {
                 </p>
                 <button
                 type="button"
-                onClick={()=>{}}
+               onClick={() => onPlay(episode)}
                disabled={!hasMedia}
                className="mt-3 min-h-11 rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700 disabled:cursor-not-allowed disabled:bg-zinc-300 disabled:text-zinc-500 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white dark:disabled:bg-zinc-800 dark:disabled:text-zinc-500">
                 Otwórz
