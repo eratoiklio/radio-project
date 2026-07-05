@@ -1,5 +1,6 @@
 "use client";
 
+import Hls from "hls.js";
 import {
     useCallback,
     useEffect,
@@ -57,8 +58,10 @@ export function useMediaPlaybackController(
         }
 
         const activeElement = element;
+        let hls: Hls | undefined;
         let disposed = false;
         const { playbackUri } = resolvedMedia;
+        const isHls = /\.m3u8(?:$|[?#])/i.test(playbackUri);
 
         function startPlayback() {
             void activeElement.play().catch(() => {
@@ -82,13 +85,41 @@ export function useMediaPlaybackController(
             }
         });
 
+        if (
+            isHls &&
+            !element.canPlayType("application/vnd.apple.mpegurl")
+        ) {
+            if (!Hls.isSupported()) {
+                queueMicrotask(() => {
+                    if (!disposed) {
+                        setPlaybackError(
+                            "Ta przeglądarka nie obsługuje wybranego formatu transmisji.",
+                        );
+                    }
+                });
+            } else {
+                hls = new Hls();
+                hls.attachMedia(element);
+                hls.on(Hls.Events.MEDIA_ATTACHED, () => {
+                    hls?.loadSource(playbackUri);
+                    startPlayback();
+                });
+                hls.on(Hls.Events.ERROR, (_event, data) => {
+                    if (data.fatal) {
+                        setPlaybackError("Nie udało się odtworzyć tego materiału.");
+                    }
+                });
+            }
+        } else {
             element.src = playbackUri;
             element.load();
             startPlayback();
+        }
 
         return () => {
             disposed = true;
             element.pause();
+            hls?.destroy();
             element.removeAttribute("src");
             element.load();
         };

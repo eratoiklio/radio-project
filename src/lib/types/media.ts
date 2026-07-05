@@ -11,6 +11,7 @@ export interface MediaAssetDto {
 interface ResolvedMediaBase {
     asset: MediaAssetDto;
     playbackUri: string;
+    subtitleUri: string | null;
 }
 
 export interface ResolvedAudio extends ResolvedMediaBase {

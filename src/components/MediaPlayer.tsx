@@ -1,9 +1,10 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
+import { formatPlaybackTime } from "@/lib/helpers/episodeHelpers";
+import type { EpisodeMediaKind } from "@/lib/helpers/episodeHelpers";
 import type { ResolvedMedia } from "@/lib/types/media";
-import {EpisodeMediaKind, formatPlaybackTime} from "@/lib/helpers/episodeHelpers";
-import {useMediaPlaybackController} from "@/components/useMediaPlaybackController";
-
+import {MediaPlaybackController, useMediaPlaybackController} from "./useMediaPlaybackController";
 
 export interface MediaPlayerProps {
     resolvedMedia: ResolvedMedia;
@@ -21,6 +22,43 @@ export function MediaPlayer({
                                 onFormatChange,
                             }: MediaPlayerProps) {
     const controller = useMediaPlaybackController(resolvedMedia);
+    const trackRef = useRef<HTMLTrackElement>(null);
+    const [subtitlesEnabled, setSubtitlesEnabled] = useState(false);
+    const [activeCaption, setActiveCaption] = useState("");
+    const [subtitleError, setSubtitleError] = useState(false);
+    const subtitleUri = resolvedMedia.subtitleUri;
+
+    useEffect(() => {
+        const textTrack = trackRef.current?.track;
+
+        if (!textTrack) {
+            return;
+        }
+
+        const track = textTrack;
+
+        track.mode = subtitlesEnabled
+            ? resolvedMedia.type === "video"
+                ? "showing"
+                : "hidden"
+            : "disabled";
+
+        function updateActiveCaption() {
+            const cues = track.activeCues ? Array.from(track.activeCues) : [];
+            setActiveCaption(
+                cues
+                    .map((cue) => ("text" in cue ? String(cue.text) : ""))
+                    .filter(Boolean)
+                    .join("\n"),
+            );
+        }
+
+        track.addEventListener("cuechange", updateActiveCaption);
+
+        return () => {
+            track.removeEventListener("cuechange", updateActiveCaption);
+        };
+    }, [resolvedMedia.type, subtitleUri, subtitlesEnabled]);
 
     function changeFormat(format: EpisodeMediaKind) {
         if (format === activeFormat) {
@@ -29,6 +67,16 @@ export function MediaPlayer({
 
         controller.pause();
         onFormatChange(format);
+    }
+
+    function toggleSubtitles() {
+        setSubtitleError(false);
+        setSubtitlesEnabled((enabled) => {
+            if (enabled) {
+                setActiveCaption("");
+            }
+            return !enabled;
+        });
     }
 
     return (
@@ -62,6 +110,16 @@ export function MediaPlayer({
                     crossOrigin="anonymous"
                     {...controller.mediaEventHandlers}
                 >
+                    {subtitleUri && (
+                        <track
+                            ref={trackRef}
+                            kind="subtitles"
+                            src={subtitleUri}
+                            srcLang="pl"
+                            label="Polski"
+                            onError={() => setSubtitleError(true)}
+                        />
+                    )}
                 </audio>
             )}
 
@@ -81,6 +139,16 @@ export function MediaPlayer({
                         className="h-64 w-full rounded-xl bg-black object-contain sm:h-72 lg:h-80"
                         {...controller.mediaEventHandlers}
                     >
+                        {subtitleUri && (
+                            <track
+                                ref={trackRef}
+                                kind="subtitles"
+                                src={subtitleUri}
+                                srcLang="pl"
+                                label="Polski"
+                                onError={() => setSubtitleError(true)}
+                            />
+                        )}
                     </video>
                 )}
 
@@ -144,9 +212,41 @@ export function MediaPlayer({
                         />
                     </div>
 
+                    {subtitleUri && (
+                        <button
+                            type="button"
+                            onClick={toggleSubtitles}
+                            aria-pressed={subtitlesEnabled}
+                            className="min-h-11 w-fit rounded-md border border-zinc-300 px-4 py-2 text-sm aria-pressed:bg-zinc-900 aria-pressed:text-white dark:border-zinc-700 dark:aria-pressed:bg-zinc-100 dark:aria-pressed:text-zinc-900"
+                        >
+                            {subtitlesEnabled ? "Wyłącz napisy" : "Włącz napisy"}
+                        </button>
+                    )}
+
+                    {!subtitleUri && (
+                        <p className="text-sm text-zinc-500" role="status">
+                            Napisy niedostępne
+                        </p>
+                    )}
                 </div>
             </div>
 
+            {resolvedMedia.type === "audio" &&
+                subtitlesEnabled &&
+                activeCaption && (
+                    <p
+                        className="mt-4 whitespace-pre-line rounded-md bg-zinc-900 p-3 text-center text-sm text-white"
+                        aria-live="polite"
+                    >
+                        {activeCaption}
+                    </p>
+                )}
+
+            {subtitleError && (
+                <p className="mt-4 text-sm text-red-700" role="alert">
+                    Nie udało się załadować napisów.
+                </p>
+            )}
 
             {controller.playbackError && (
                 <p className="mt-4 text-sm text-red-700" role="alert">

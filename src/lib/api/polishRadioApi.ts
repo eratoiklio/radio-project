@@ -1,6 +1,9 @@
-import {apiFetch} from "./client";
-import {EpisodeRm} from "@/lib/types/episode";
-import {MediaAssetDto, ResolvedMedia} from "@/lib/types/media";
+import "server-only";
+
+import { apiFetch } from "./client";
+import type { EpisodeRm } from "../types/episode";
+import type { MediaAssetDto, ResolvedMedia } from "../types/media";
+
 const EPISODES_PATH =
     process.env.POLISH_RADIO_EPISODES_PATH ??
     "/podcast-episodes/read-models";
@@ -27,13 +30,113 @@ export interface ResolveMediaOptions {
     externalVideoId?: string | null;
 }
 
-
 interface EpisodesApiResponse {
     data: EpisodeRm[];
     total: number;
     pageNumber: number;
     pageSize: number;
     totalPages: number;
+}
+
+function isNullableString(value: unknown): value is string | null {
+    return value === null || typeof value === "string";
+}
+
+function isNullableNumber(value: unknown): value is number | null {
+    return value === null || typeof value === "number";
+}
+
+function isNonEmptyString(value: unknown): value is string {
+    return typeof value === "string" && value.trim().length > 0;
+}
+
+function isEpisodeRm(value: unknown): value is EpisodeRm {
+    if (!value || typeof value !== "object") {
+        return false;
+    }
+
+    const episode = value as Record<string, unknown>;
+    const mainImage = episode.mainImage;
+
+    return (
+        isNonEmptyString(episode.id) &&
+        isNonEmptyString(episode.title) &&
+        isNonEmptyString(episode.slug) &&
+        isNonEmptyString(episode.podcastSlug) &&
+        isNonEmptyString(episode.podcastTitle) &&
+        isNullableNumber(episode.audioDuration) &&
+        isNullableNumber(episode.videoDuration) &&
+        isNullableString(episode.externalAudioId) &&
+        isNullableString(episode.externalVideoId) &&
+        (mainImage === null ||
+            (typeof mainImage === "object" &&
+                isNonEmptyString((mainImage as Record<string, unknown>).uri) &&
+                typeof (mainImage as Record<string, unknown>).title === "string"))
+    );
+}
+
+function getMediaCdnBaseUrl(): URL {
+    const configuredUrl =
+        process.env.POLISH_RADIO_MEDIA_CDN_BASE_URL ??
+        DEFAULT_MEDIA_CDN_BASE_URL;
+
+    try {
+        return new URL(configuredUrl.endsWith("/") ? configuredUrl : `${configuredUrl}/`);
+    } catch (cause) {
+        throw new PolishRadioApiError(
+            "POLISH_RADIO_MEDIA_CDN_BASE_URL is not a valid URL",
+            undefined,
+            { cause },
+        );
+    }
+}
+
+function replaceWithMediaCdn(uri: string): URL {
+    let source: URL;
+
+    try {
+        source = new URL(uri);
+    } catch (cause) {
+        throw new PolishRadioApiError("Polish Radio API returned an invalid media URI", undefined, {
+            cause,
+        });
+    }
+
+    const cdn = getMediaCdnBaseUrl();
+    const cdnPath = cdn.pathname.replace(/\/+$/, "");
+    const sourcePath = source.pathname.startsWith("/")
+        ? source.pathname
+        : `/${source.pathname}`;
+    const result = new URL(cdn);
+
+    result.pathname = `${cdnPath}${sourcePath}`;
+    result.search = source.search;
+    result.hash = source.hash;
+
+    return result;
+}
+
+export function normalizePlaybackUri(uri: string, type: MediaKind): string {
+    const result = replaceWithMediaCdn(uri);
+
+    if (type === "audio") {
+        result.pathname = result.pathname.replace(/\.wav$/i, ".mp3");
+    }
+
+    return result.toString();
+}
+
+function normalizeSubtitleUri(asset: MediaAssetDto): string | null {
+    if (!asset.transcription?.vttUri) {
+        return null;
+    }
+
+    const result = replaceWithMediaCdn(asset.uri);
+    result.pathname = result.pathname.replace(/[^/]+$/, "transcription.vtt");
+    result.search = "";
+    result.hash = "";
+
+    return result.toString();
 }
 
 export class PolishRadioApiError extends Error {
@@ -102,6 +205,8 @@ export async function getEpisodes(options: GetEpisodesOptions) : Promise<Episode
     const data = payload as EpisodesApiResponse;
     if (
         !Array.isArray(data.data) ||
+        !data.data.every(isEpisodeRm) ||
+        typeof data.total !== "number" ||
         typeof data.pageNumber !== "number" ||
         typeof data.pageSize !== "number" ||
         typeof data.totalPages !== "number"
@@ -121,58 +226,6 @@ export async function getEpisodes(options: GetEpisodesOptions) : Promise<Episode
 
     return { items: data.data, hasNextPage, nextPage };
 }
-
-function getMediaCdnBaseUrl(): URL {
-    const configuredUrl =
-        process.env.POLISH_RADIO_MEDIA_CDN_BASE_URL ??
-        DEFAULT_MEDIA_CDN_BASE_URL;
-
-    try {
-        return new URL(configuredUrl.endsWith("/") ? configuredUrl : `${configuredUrl}/`);
-    } catch (cause) {
-        throw new PolishRadioApiError(
-            "POLISH_RADIO_MEDIA_CDN_BASE_URL is not a valid URL",
-            undefined,
-            { cause },
-        );
-    }
-}
-
-function replaceWithMediaCdn(uri: string): URL {
-    let source: URL;
-
-    try {
-        source = new URL(uri);
-    } catch (cause) {
-        throw new PolishRadioApiError("Polish Radio API returned an invalid media URI", undefined, {
-            cause,
-        });
-    }
-
-    const cdn = getMediaCdnBaseUrl();
-    const cdnPath = cdn.pathname.replace(/\/+$/, "");
-    const sourcePath = source.pathname.startsWith("/")
-        ? source.pathname
-        : `/${source.pathname}`;
-    const result = new URL(cdn);
-
-    result.pathname = `${cdnPath}${sourcePath}`;
-    result.search = source.search;
-    result.hash = source.hash;
-
-    return result;
-}
-
-export function normalizePlaybackUri(uri: string, type: MediaKind): string {
-    const result = replaceWithMediaCdn(uri);
-
-    if (type === "audio") {
-        result.pathname = result.pathname.replace(/\.wav$/i, ".mp3");
-    }
-
-    return result.toString();
-}
-
 
 export async function resolveMedia({
                                        externalAudioId,
@@ -237,5 +290,6 @@ export async function resolveMedia({
         type,
         asset: mediaAsset,
         playbackUri: normalizePlaybackUri(mediaAsset.uri, type),
+        subtitleUri: normalizeSubtitleUri(mediaAsset),
     };
 }
