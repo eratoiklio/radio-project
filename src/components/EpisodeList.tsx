@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
 import type {EpisodeRm} from '@/lib/types/episode';
-import {Episode} from "./Episode"
+import {Episode} from "./Episode";
 
 export interface EpisodeListProps {
-    episodes: EpisodeRm[]
+    episodes: EpisodeRm[];
     onPlay: (episode: EpisodeRm) => void;
 }
 
@@ -23,8 +23,8 @@ export function EpisodeList({episodes, onPlay}: EpisodeListProps) {
                         index={index}
                         episode={episode}
                         onPlay={onPlay}
-                    /></li>
+                    /></li>;
             })}
         </ul>
-    )
+    );
 }

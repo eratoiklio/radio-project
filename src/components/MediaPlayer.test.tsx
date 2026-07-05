@@ -1,7 +1,7 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import { MediaPlayerContainer } from "./MediaPlayerContainer";
-import type { ResolvedMedia } from "@/lib/types/media";
+import {fireEvent, render, screen, waitFor} from "@testing-library/react";
+import {beforeEach, describe, expect, it, vi} from "vitest";
+import {MediaPlayerContainer} from "./MediaPlayerContainer";
+import type {ResolvedMedia} from "@/lib/types/media";
 
 const hlsInstances: Array<{
     loadSource: ReturnType<typeof vi.fn>;
@@ -10,7 +10,7 @@ const hlsInstances: Array<{
 
 vi.mock("hls.js", () => {
     class HlsMock {
-        static Events = { MEDIA_ATTACHED: "mediaAttached", ERROR: "error" };
+        static Events = {MEDIA_ATTACHED: "mediaAttached", ERROR: "error"};
         static isSupported = vi.fn(() => true);
         attachMedia = vi.fn();
         loadSource = vi.fn();
@@ -18,11 +18,13 @@ vi.mock("hls.js", () => {
         on = vi.fn((event: string, callback: () => void) => {
             if (event === "mediaAttached") callback();
         });
+
         constructor() {
             hlsInstances.push(this);
         }
     }
-    return { default: HlsMock };
+
+    return {default: HlsMock};
 });
 
 const audioMedia: ResolvedMedia = {
@@ -33,7 +35,7 @@ const audioMedia: ResolvedMedia = {
         id: "audio-id",
         title: "Audio",
         uri: "https://dev-cms-gateway.polskieradio.pl/cms/dev/audio.wav",
-        durationSeconds: 120
+        durationSeconds: 120,
     },
 };
 
@@ -54,7 +56,7 @@ describe("MediaPlayer playback", () => {
             />,
         );
         expect(document.querySelector("audio")?.src).toBe(audioMedia.playbackUri);
-        fireEvent.click(screen.getByRole("button", { name: "Odtwórz" }));
+        fireEvent.click(screen.getByRole("button", {name: "Odtwórz"}));
         expect(HTMLMediaElement.prototype.play).toHaveBeenCalled();
     });
 
@@ -71,15 +73,15 @@ describe("MediaPlayer playback", () => {
         );
         const audio = document.querySelector("audio")!;
         Object.defineProperties(audio, {
-            duration: { configurable: true, value: 120 },
-            currentTime: { configurable: true, writable: true, value: 30 },
+            duration: {configurable: true, value: 120},
+            currentTime: {configurable: true, writable: true, value: 30},
         });
         fireEvent.loadedMetadata(audio);
         fireEvent.timeUpdate(audio);
         expect(screen.getByText("0:30")).toBeInTheDocument();
         expect(screen.getByText("2:00")).toBeInTheDocument();
         fireEvent.change(screen.getByLabelText("Pozycja odtwarzania"), {
-            target: { value: "45" },
+            target: {value: "45"},
         });
         expect(audio.currentTime).toBe(45);
     });
@@ -93,10 +95,10 @@ describe("MediaPlayer playback", () => {
                 id: "video",
                 title: "HLS",
                 uri: "https://gateway.example.test/raw-video.m3u8",
-                durationSeconds: 10
+                durationSeconds: 10,
             },
         };
-        const { unmount } = render(
+        const {unmount} = render(
             <MediaPlayerContainer
                 title="Test video"
                 resolvedMedia={media}

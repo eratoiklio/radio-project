@@ -1,6 +1,6 @@
-import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
-import { MediaPlayerContainer } from "./MediaPlayerContainer";
+import {fireEvent, render, screen} from "@testing-library/react";
+import {describe, expect, it, vi} from "vitest";
+import {MediaPlayerContainer} from "./MediaPlayerContainer";
 
 describe("MediaPlayer volume", () => {
     it("changes volume and toggles mute", () => {
@@ -15,7 +15,7 @@ describe("MediaPlayer volume", () => {
                         id: "audio",
                         title: "Audio",
                         uri: "https://example.test/audio.mp3",
-                        durationSeconds: 10
+                        durationSeconds: 10,
                     },
                 }}
                 hasAudio
@@ -26,10 +26,10 @@ describe("MediaPlayer volume", () => {
         );
         const audio = document.querySelector("audio")!;
         fireEvent.change(screen.getByLabelText("Głośność"), {
-            target: { value: "0.4" },
+            target: {value: "0.4"},
         });
         expect(audio.volume).toBe(0.4);
-        fireEvent.click(screen.getByRole("button", { name: "Wycisz" }));
+        fireEvent.click(screen.getByRole("button", {name: "Wycisz"}));
         expect(audio.muted).toBe(true);
     });
 });

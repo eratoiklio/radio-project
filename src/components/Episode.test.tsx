@@ -16,8 +16,8 @@ const playableEpisode: EpisodeRm = {
     externalVideoId: "video-id",
     mainImage: {
         title: "Opis okładki",
-        uri: "https://example.test/image.jpg"
-    }
+        uri: "https://example.test/image.jpg",
+    },
 };
 
 describe("Episode", () => {

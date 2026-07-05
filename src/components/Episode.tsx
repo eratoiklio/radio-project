@@ -1,12 +1,12 @@
-"use client"
+"use client";
 
 import {EpisodeRm} from "@/lib/types/episode";
 import {buildEpisodePageUrl, formatDuration, getAvailableMediaKinds} from "@/lib/helpers/episodeHelpers";
 
 type EpisodeProps = {
-    episode: EpisodeRm,
+    episode: EpisodeRm;
     onPlay: (episode: EpisodeRm) => void;
-    index: number
+    index: number;
 }
 
 function getMediaLabel(episode: EpisodeRm): string {
@@ -21,8 +21,8 @@ function getMediaLabel(episode: EpisodeRm): string {
 
 export function Episode({episode, onPlay}: EpisodeProps) {
     const episodePageUrl = buildEpisodePageUrl(episode);
-    const mediaLabel = getMediaLabel(episode)
-    const hasMedia = mediaLabel.length > 0
+    const mediaLabel = getMediaLabel(episode);
+    const hasMedia = mediaLabel.length > 0;
     return <>
         <div
             className="aspect-square w-20 shrink-0 overflow-hidden rounded-md bg-zinc-100 sm:w-24 dark:bg-zinc-900">
@@ -67,5 +67,5 @@ export function Episode({episode, onPlay}: EpisodeProps) {
                 Odtwórz
             </button>
         </div>
-    </>
+    </>;
 }

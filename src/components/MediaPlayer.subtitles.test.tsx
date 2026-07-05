@@ -1,6 +1,6 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
-import { MediaPlayerContainer } from "./MediaPlayerContainer";
+import {render, screen} from "@testing-library/react";
+import {describe, expect, it, vi} from "vitest";
+import {MediaPlayerContainer} from "./MediaPlayerContainer";
 
 describe("MediaPlayer subtitles", () => {
     it("shows WebVTT controls when a transcription is available", () => {
@@ -30,7 +30,7 @@ describe("MediaPlayer subtitles", () => {
             />,
         );
         expect(
-            screen.getByRole("button", { name: "Włącz napisy" }),
+            screen.getByRole("button", {name: "Włącz napisy"}),
         ).toBeInTheDocument();
         expect(document.querySelector("track")).toHaveAttribute(
             "src",
@@ -50,7 +50,7 @@ describe("MediaPlayer subtitles", () => {
                         id: "audio",
                         title: "Audio",
                         uri: "https://gateway.example.test/audio.mp3",
-                        durationSeconds: 10
+                        durationSeconds: 10,
                     },
                 }}
                 hasAudio
@@ -62,7 +62,7 @@ describe("MediaPlayer subtitles", () => {
 
         expect(screen.getByText("Napisy niedostępne")).toBeInTheDocument();
         expect(
-            screen.queryByRole("button", { name: "Włącz napisy" }),
+            screen.queryByRole("button", {name: "Włącz napisy"}),
         ).not.toBeInTheDocument();
     });
 });

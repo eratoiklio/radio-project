@@ -1,8 +1,8 @@
 import "server-only";
 
-import { apiFetch } from "./client";
-import type { EpisodeRm } from "../types/episode";
-import type { MediaAssetDto, ResolvedMedia } from "../types/media";
+import {apiFetch} from "./client";
+import type {EpisodeRm} from "../types/episode";
+import type {MediaAssetDto, ResolvedMedia} from "../types/media";
 
 const EPISODES_PATH =
     process.env.POLISH_RADIO_EPISODES_PATH ??
@@ -12,6 +12,7 @@ const AUDIO_PATH =
 const VIDEO_PATH =
     process.env.POLISH_RADIO_VIDEO_PATH ?? "/video";
 type MediaKind = "audio" | "video";
+
 export interface GetEpisodesOptions {
     pageNumber: number;
     pageSize: number;
@@ -88,7 +89,7 @@ function getMediaCdnBaseUrl(): URL {
         throw new PolishRadioApiError(
             "POLISH_RADIO_MEDIA_CDN_BASE_URL is not a valid URL",
             undefined,
-            { cause },
+            {cause},
         );
     }
 }
@@ -162,7 +163,7 @@ async function readJson(response: Response, operation: string): Promise<unknown>
             throw new PolishRadioApiError(
                 `Polish Radio API failed to ${operation} (${response.status} ${response.statusText}); the error response could not be read`,
                 response.status,
-                { cause },
+                {cause},
             );
         }
 
@@ -180,21 +181,21 @@ async function readJson(response: Response, operation: string): Promise<unknown>
         throw new PolishRadioApiError(
             `Polish Radio API returned invalid JSON while trying to ${operation}`,
             response.status,
-            { cause },
+            {cause},
         );
     }
 }
 
-export async function getEpisodes(options: GetEpisodesOptions) : Promise<EpisodesPage> {
-    const { pageNumber, pageSize } = options;
+export async function getEpisodes(options: GetEpisodesOptions): Promise<EpisodesPage> {
+    const {pageNumber, pageSize} = options;
 
     const query = new URLSearchParams({
         pageNumber: String(pageNumber),
-        pageSize: String(pageSize)
+        pageSize: String(pageSize),
     });
 
     const payload = await readJson(
-        await apiFetch(`${EPISODES_PATH}?${query}`, { cache: "no-store" }),
+        await apiFetch(`${EPISODES_PATH}?${query}`, {cache: "no-store"}),
         "fetch podcast episodes",
     );
 
@@ -226,7 +227,7 @@ export async function getEpisodes(options: GetEpisodesOptions) : Promise<Episode
         }
         : undefined;
 
-    return { items: data.data, hasNextPage, nextPage };
+    return {items: data.data, hasNextPage, nextPage};
 }
 
 export async function resolveMedia({

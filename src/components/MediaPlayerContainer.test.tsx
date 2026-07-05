@@ -4,9 +4,9 @@ import {
     render,
     screen,
 } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import { MediaPlayerContainer } from "./MediaPlayerContainer";
-import type { ResolvedMedia } from "@/lib/types/media";
+import {beforeEach, describe, expect, it, vi} from "vitest";
+import {MediaPlayerContainer} from "./MediaPlayerContainer";
+import type {ResolvedMedia} from "@/lib/types/media";
 
 const media: ResolvedMedia = {
     type: "audio",
@@ -16,7 +16,7 @@ const media: ResolvedMedia = {
         id: "audio-id",
         title: "Asset title",
         uri: "https://gateway.example.test/audio.wav",
-        durationSeconds: 120
+        durationSeconds: 120,
     },
 };
 
@@ -53,7 +53,7 @@ function renderContainer() {
 function setMainPlayerVisibility(isIntersecting: boolean) {
     act(() => {
         observerCallback(
-            [{ isIntersecting } as IntersectionObserverEntry],
+            [{isIntersecting} as IntersectionObserverEntry],
             {} as IntersectionObserver,
         );
     });
@@ -74,7 +74,7 @@ describe("MediaPlayerContainer", () => {
         renderContainer();
 
         expect(
-            screen.getByRole("region", { name: "Odtwarzacz multimediów" }),
+            screen.getByRole("region", {name: "Odtwarzacz multimediów"}),
         ).toHaveClass("w-full", "rounded-2xl");
     });
 
@@ -83,7 +83,7 @@ describe("MediaPlayerContainer", () => {
 
         setMainPlayerVisibility(true);
         expect(
-            screen.queryByRole("region", { name: "Mini odtwarzacz" }),
+            screen.queryByRole("region", {name: "Mini odtwarzacz"}),
         ).not.toBeInTheDocument();
     });
 
@@ -92,7 +92,7 @@ describe("MediaPlayerContainer", () => {
 
         setMainPlayerVisibility(false);
         expect(
-            screen.getByRole("region", { name: "Mini odtwarzacz" }),
+            screen.getByRole("region", {name: "Mini odtwarzacz"}),
         ).toHaveClass("fixed", "bottom-3", "sm:right-5", "z-50");
         expect(screen.getByText("Aktualny odcinek")).toBeInTheDocument();
     });
@@ -118,15 +118,15 @@ describe("MediaPlayerContainer", () => {
         renderContainer();
         const audio = document.querySelector("audio")!;
         Object.defineProperties(audio, {
-            duration: { configurable: true, value: 120 },
-            currentTime: { configurable: true, writable: true, value: 0 },
+            duration: {configurable: true, value: 120},
+            currentTime: {configurable: true, writable: true, value: 0},
         });
         fireEvent.loadedMetadata(audio);
         setMainPlayerVisibility(false);
 
         fireEvent.change(
             screen.getByLabelText("Pozycja odtwarzania mini playera"),
-            { target: { value: "42" } },
+            {target: {value: "42"}},
         );
 
         expect(audio.currentTime).toBe(42);
@@ -139,7 +139,7 @@ describe("MediaPlayerContainer", () => {
 
         expect(document.querySelectorAll("audio, video")).toHaveLength(1);
         expect(
-            screen.getByRole("region", { name: "Mini odtwarzacz" }).querySelector(
+            screen.getByRole("region", {name: "Mini odtwarzacz"}).querySelector(
                 "audio, video",
             ),
         ).toBeNull();
@@ -157,7 +157,7 @@ describe("MediaPlayerContainer", () => {
                         id: "video-id",
                         title: "Video",
                         uri: "https://gateway.example.test/video.mp4",
-                        durationSeconds: 120
+                        durationSeconds: 120,
                     },
                 }}
                 hasAudio={false}
@@ -173,7 +173,7 @@ describe("MediaPlayerContainer", () => {
         ).toBeInTheDocument();
         expect(document.querySelectorAll("video")).toHaveLength(1);
         expect(
-            screen.getByRole("region", { name: "Mini odtwarzacz" }).querySelector(
+            screen.getByRole("region", {name: "Mini odtwarzacz"}).querySelector(
                 "video",
             ),
         ).toBeNull();
@@ -183,22 +183,22 @@ describe("MediaPlayerContainer", () => {
         renderContainer();
         const audio = document.querySelector("audio")!;
         Object.defineProperties(audio, {
-            duration: { configurable: true, value: 120 },
-            currentTime: { configurable: true, writable: true, value: 20 },
-            muted: { configurable: true, writable: true, value: false },
+            duration: {configurable: true, value: 120},
+            currentTime: {configurable: true, writable: true, value: 20},
+            muted: {configurable: true, writable: true, value: false},
         });
         vi.mocked(HTMLMediaElement.prototype.play).mockClear();
 
-        fireEvent.keyDown(window, { code: "Space", key: " " });
+        fireEvent.keyDown(window, {code: "Space", key: " "});
         expect(HTMLMediaElement.prototype.play).toHaveBeenCalledOnce();
 
-        fireEvent.keyDown(window, { key: "ArrowRight" });
+        fireEvent.keyDown(window, {key: "ArrowRight"});
         expect(audio.currentTime).toBe(25);
 
-        fireEvent.keyDown(window, { key: "ArrowLeft" });
+        fireEvent.keyDown(window, {key: "ArrowLeft"});
         expect(audio.currentTime).toBe(20);
 
-        fireEvent.keyDown(window, { key: "m" });
+        fireEvent.keyDown(window, {key: "m"});
         expect(audio.muted).toBe(true);
     });
 
