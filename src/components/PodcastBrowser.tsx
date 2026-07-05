@@ -2,7 +2,7 @@
 
 import {EpisodeList} from "@/components/EpisodeList";
 import {EpisodesPage, GetEpisodesOptions} from "@/lib/api/polishRadioApi";
-import {useRef, useState} from "react";
+import {useEffect, useRef, useState} from "react";
 import {loadMoreEpisodes} from "@/app/actions";
 import {MediaPlayer} from "@/components/MediaPlayer";
 import {EpisodeRm} from "@/lib/types/episode";
@@ -29,6 +29,22 @@ export function PodcastBrowser({episodesPage}: PodcastBrowserProps) {
     const [loadMoreError, setLoadMoreError] = useState(false);
     const mediaRequest = useRef<AbortController | null>(null);
     const canShowMore = hasNextPage && nextPage !== undefined;
+    const nowPlayingRef = useRef<HTMLElement>(null);
+
+    useEffect(() => {
+        if (!activeEpisode) {
+            return;
+        }
+
+        const animationFrame = requestAnimationFrame(() => {
+            nowPlayingRef.current?.scrollIntoView({
+                behavior: "smooth",
+                block: "start",
+            });
+        });
+
+        return () => cancelAnimationFrame(animationFrame);
+    }, [activeEpisode]);
 
     async function resolveEpisodeMedia(
         episode: EpisodeRm,
@@ -119,19 +135,74 @@ export function PodcastBrowser({episodesPage}: PodcastBrowserProps) {
             <h2 id="episodes-heading" className="mb-5 text-xl font-semibold">
                 Odcinki
             </h2>
-            {resolvedMedia && <MediaPlayer
-                          resolvedMedia={resolvedMedia}
-                          hasAudio={Boolean(activeEpisode?.externalAudioId)}
-                          hasVideo={Boolean(activeEpisode?.externalVideoId)}
-                          activeFormat={activeFormat}
-                          onFormatChange={handleFormatChange}/>}
+
+            {activeEpisode && (
+                <section
+                    ref={nowPlayingRef}
+                    className="mb-10 scroll-mt-6"
+                    aria-labelledby="now-playing-heading"
+                    data-testid="now-playing-panel"
+                >
+                    <div className="mb-4 flex items-start justify-between gap-4">
+                        <div>
+                            <p className="text-sm font-medium uppercase tracking-wide text-zinc-500">
+                                Teraz odtwarzane
+                            </p>
+                            <h3
+                                id="now-playing-heading"
+                                className="mt-1 text-2xl font-semibold tracking-tight"
+                            >
+                                {activeEpisode.title}
+                            </h3>
+                        </div>
+                    </div>
+
+                    {isLoadingMedia && (
+                        <div
+                            className="flex min-h-72 items-center justify-center rounded-2xl border border-zinc-200 bg-zinc-50 p-8 text-zinc-500 dark:border-zinc-800 dark:bg-zinc-900"
+                            aria-live="polite"
+                        >
+                            Ładowanie medium…
+                        </div>
+                    )}
+
+                    {mediaError && (
+                        <div
+                            className="rounded-2xl border border-red-200 bg-red-50 p-6 text-red-900 dark:border-red-900 dark:bg-red-950 dark:text-red-100"
+                            role="alert"
+                        >
+                            <p>Nie udało się załadować medium.</p>
+                            <button
+                                type="button"
+                                onClick={() =>
+                                    resolveEpisodeMedia(activeEpisode, activeFormat)
+                                }
+                                className="mt-3 min-h-11 rounded-md border border-red-300 px-4 py-2 font-medium dark:border-red-800"
+                            >
+                                Ponów próbę
+                            </button>
+                        </div>
+                    )}
+
+                    {resolvedMedia && (
+                        <MediaPlayer
+                            resolvedMedia={resolvedMedia}
+                            hasAudio={Boolean(activeEpisode.externalAudioId)}
+                            hasVideo={Boolean(activeEpisode.externalVideoId)}
+                            activeFormat={activeFormat}
+                            onFormatChange={handleFormatChange}
+                        />
+                    )}
+                </section>
+            )}
+
             <div className="min-w-0">
                 {episodes.length === 0 ? (
                     <p className="text-zinc-600 dark:text-zinc-400">
                         Brak dostępnych odcinków.
                     </p>
                 ) : (
-                    <EpisodeList episodes={episodes} onPlay={handlePlay}/>
+                    <EpisodeList episodes={episodes} onPlay={handlePlay} />
                 )}
 
                 {loadMoreError && (
