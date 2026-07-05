@@ -1,19 +1,22 @@
-"use client"
+"use client";
 
-import {EpisodeList} from "@/components/EpisodeList";
-import {EpisodesPage, GetEpisodesOptions} from "@/lib/api/polishRadioApi";
-import {useEffect, useRef, useState} from "react";
-import {loadMoreEpisodes} from "@/app/actions";
-import {MediaPlayer} from "@/components/MediaPlayer";
-import {EpisodeRm} from "@/lib/types/episode";
-import {EpisodeMediaKind} from "@/lib/helpers/episodeHelpers";
-import {ResolvedMedia} from "@/lib/types/media";
+import { useEffect, useRef, useState } from "react";
+import { loadMoreEpisodes } from "@/app/actions";
+import type {
+    EpisodesPage,
+    GetEpisodesOptions,
+} from "@/lib/api/polishRadioApi";
+import type { EpisodeMediaKind } from "@/lib/helpers/episodeHelpers";
+import type { EpisodeRm } from "@/lib/types/episode";
+import type { ResolvedMedia } from "@/lib/types/media";
+import { EpisodeList } from "./EpisodeList";
+import { MediaPlayerContainer } from "./MediaPlayerContainer";
 
 interface PodcastBrowserProps {
     episodesPage: EpisodesPage;
 }
 
-export function PodcastBrowser({episodesPage}: PodcastBrowserProps) {
+export function PodcastBrowser({ episodesPage }: PodcastBrowserProps) {
     const [episodes, setEpisodes] = useState(episodesPage.items);
     const [hasNextPage, setHasNextPage] = useState(episodesPage.hasNextPage);
     const [nextPage, setNextPage] = useState<GetEpisodesOptions | undefined>(
@@ -185,7 +188,8 @@ export function PodcastBrowser({episodesPage}: PodcastBrowserProps) {
                     )}
 
                     {resolvedMedia && (
-                        <MediaPlayer
+                        <MediaPlayerContainer
+                            title={activeEpisode.title}
                             resolvedMedia={resolvedMedia}
                             hasAudio={Boolean(activeEpisode.externalAudioId)}
                             hasVideo={Boolean(activeEpisode.externalVideoId)}
@@ -222,5 +226,6 @@ export function PodcastBrowser({episodesPage}: PodcastBrowserProps) {
                     </button>
                 )}
             </div>
-        </section>)
+        </section>
+    );
 }

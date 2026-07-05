@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { formatPlaybackTime } from "@/lib/helpers/episodeHelpers";
-import type { EpisodeMediaKind } from "@/lib/helpers/episodeHelpers";
-import type { ResolvedMedia } from "@/lib/types/media";
-import {MediaPlaybackController, useMediaPlaybackController} from "./useMediaPlaybackController";
+import {useEffect, useRef, useState} from "react";
+import type {EpisodeMediaKind} from "@/lib/helpers/episodeHelpers";
+import {formatPlaybackTime} from "@/lib/helpers/episodeHelpers";
+import type {ResolvedMedia} from "@/lib/types/media";
+import type {MediaPlaybackController} from "./useMediaPlaybackController";
 
 export interface MediaPlayerProps {
     resolvedMedia: ResolvedMedia;
@@ -12,6 +12,7 @@ export interface MediaPlayerProps {
     hasVideo: boolean;
     activeFormat: EpisodeMediaKind;
     onFormatChange: (format: EpisodeMediaKind) => void;
+    controller: MediaPlaybackController;
 }
 
 export function MediaPlayer({
@@ -20,8 +21,8 @@ export function MediaPlayer({
                                 hasVideo,
                                 activeFormat,
                                 onFormatChange,
+                                controller,
                             }: MediaPlayerProps) {
-    const controller = useMediaPlaybackController(resolvedMedia);
     const trackRef = useRef<HTMLTrackElement>(null);
     const [subtitlesEnabled, setSubtitlesEnabled] = useState(false);
     const [activeCaption, setActiveCaption] = useState("");
@@ -161,7 +162,6 @@ export function MediaPlayer({
                         >
                             {controller.isPlaying ? "Pauza" : "Odtwórz"}
                         </button>
-
                     </div>
 
                     <div className="flex items-center gap-3">
