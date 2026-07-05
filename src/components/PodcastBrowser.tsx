@@ -31,8 +31,11 @@ export function PodcastBrowser({ episodesPage }: PodcastBrowserProps) {
     const [isLoadingMore, setIsLoadingMore] = useState(false);
     const [loadMoreError, setLoadMoreError] = useState(false);
     const mediaRequest = useRef<AbortController | null>(null);
-    const canShowMore = hasNextPage && nextPage !== undefined;
     const nowPlayingRef = useRef<HTMLElement>(null);
+    const returnScrollPosition = useRef(0);
+    const returnEpisodeId = useRef<string | null>(null);
+
+    const canShowMore = hasNextPage && nextPage !== undefined;
 
     useEffect(() => {
         if (!activeEpisode) {
@@ -100,9 +103,32 @@ export function PodcastBrowser({ episodesPage }: PodcastBrowserProps) {
             ? "video"
             : "audio";
 
+        returnScrollPosition.current = window.scrollY;
+        returnEpisodeId.current = episode.id;
         setActiveEpisode(episode);
         setActiveFormat(preferredKind);
         void resolveEpisodeMedia(episode, preferredKind);
+    }
+
+    function returnToEpisode() {
+        const episodeElement = returnEpisodeId.current
+            ? document.getElementById(
+                `episode-card-${returnEpisodeId.current}`,
+            )
+            : null;
+
+        if (episodeElement) {
+            episodeElement.scrollIntoView({
+                behavior: "smooth",
+                block: "center",
+            });
+            return;
+        }
+
+        window.scrollTo({
+            top: returnScrollPosition.current,
+            behavior: "smooth",
+        });
     }
 
     function handleFormatChange(format: EpisodeMediaKind) {
@@ -195,6 +221,7 @@ export function PodcastBrowser({ episodesPage }: PodcastBrowserProps) {
                             hasVideo={Boolean(activeEpisode.externalVideoId)}
                             activeFormat={activeFormat}
                             onFormatChange={handleFormatChange}
+                            onReturn={returnToEpisode}
                         />
                     )}
                 </section>

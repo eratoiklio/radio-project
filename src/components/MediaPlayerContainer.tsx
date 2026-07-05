@@ -14,6 +14,7 @@ interface MediaPlayerContainerProps {
     hasVideo: boolean;
     activeFormat: EpisodeMediaKind;
     onFormatChange: (format: EpisodeMediaKind) => void;
+    onReturn?: () => void;
 }
 
 export function MediaPlayerContainer({
@@ -23,9 +24,11 @@ export function MediaPlayerContainer({
                                          hasVideo,
                                          activeFormat,
                                          onFormatChange,
+                                         onReturn = () => undefined,
                                      }: MediaPlayerContainerProps) {
     const mainPlayerRef = useRef<HTMLDivElement>(null);
     const [isMainPlayerVisible, setIsMainPlayerVisible] = useState(true);
+    const [isMiniPlayerCollapsed, setIsMiniPlayerCollapsed] = useState(false);
     const controller = useMediaPlaybackController(resolvedMedia);
 
     useEffect(() => {
@@ -50,7 +53,7 @@ export function MediaPlayerContainer({
     return (
         <div
             className={
-                showMiniPlayer
+                showMiniPlayer && !isMiniPlayerCollapsed
                     ? "pb-72 lg:pb-0"
                     : undefined
             }
@@ -62,6 +65,7 @@ export function MediaPlayerContainer({
                     hasVideo={hasVideo}
                     activeFormat={activeFormat}
                     onFormatChange={onFormatChange}
+                    onReturn={onReturn}
                     controller={controller}
                 />
             </div>
@@ -75,6 +79,10 @@ export function MediaPlayerContainer({
                     hasVideo={hasVideo}
                     activeFormat={activeFormat}
                     onFormatChange={onFormatChange}
+                    isCollapsed={isMiniPlayerCollapsed}
+                    onToggleCollapsed={() =>
+                        setIsMiniPlayerCollapsed((collapsed) => !collapsed)
+                    }
                 />
             )}
         </div>

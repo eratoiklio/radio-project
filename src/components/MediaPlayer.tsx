@@ -12,6 +12,7 @@ export interface MediaPlayerProps {
     hasVideo: boolean;
     activeFormat: EpisodeMediaKind;
     onFormatChange: (format: EpisodeMediaKind) => void;
+    onReturn?: () => void;
     controller: MediaPlaybackController;
 }
 
@@ -21,6 +22,7 @@ export function MediaPlayer({
                                 hasVideo,
                                 activeFormat,
                                 onFormatChange,
+                                onReturn = () => undefined,
                                 controller,
                             }: MediaPlayerProps) {
     const trackRef = useRef<HTMLTrackElement>(null);
@@ -161,6 +163,27 @@ export function MediaPlayer({
                             className="min-h-11 flex-1 rounded-md bg-zinc-900 px-4 py-2 font-medium text-white sm:flex-none dark:bg-zinc-100 dark:text-zinc-900"
                         >
                             {controller.isPlaying ? "Pauza" : "Odtwórz"}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={onReturn}
+                            aria-label="Powrót do wybranego odcinka"
+                            className="flex min-h-11 flex-1 items-center justify-center gap-2 rounded-md border border-zinc-300 px-4 py-2 font-medium hover:bg-zinc-100 sm:flex-none dark:border-zinc-700 dark:hover:bg-zinc-800"
+                        >
+                            <svg
+                                aria-hidden="true"
+                                viewBox="0 0 24 24"
+                                className="h-5 w-5"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            >
+                                <path d="M12 5v14" />
+                                <path d="m6 13 6 6 6-6" />
+                            </svg>
+                            Powrót
                         </button>
                     </div>
 

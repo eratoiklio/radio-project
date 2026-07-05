@@ -10,6 +10,23 @@ vi.mock("../app/actions", () => ({
     loadMoreEpisodes: (...args: unknown[]) => loadMoreEpisodesMock(...args),
 }));
 
+vi.mock("./MediaPlayerContainer", () => ({
+    MediaPlayerContainer: ({
+                               title,
+                               onReturn,
+                           }: {
+        title: string;
+        onReturn: () => void;
+    }) => (
+        <div data-testid="wide-media-player">
+            {title}
+            <button type="button" onClick={onReturn}>
+                Powrót
+            </button>
+        </div>
+    ),
+}));
+
 function episode(index: number): EpisodeRm {
     return {
         id: `episode-${index}`,
@@ -30,6 +47,68 @@ beforeEach(() => {
 });
 
 describe("PodcastBrowser", () => {
+    it("renders the selected episode in a wide panel above the list", async () => {
+        const episodeWithVideo = {
+            ...episode(1),
+            externalVideoId: "video-1",
+        };
+        const page: EpisodesPage = {
+            items: [episodeWithVideo],
+            hasNextPage: false,
+        };
+        const fetchMock = vi.fn().mockResolvedValueOnce(
+            new Response(
+                JSON.stringify({
+                    type: "video",
+                    playbackUri: "https://media.example.test/video.mp4",
+                    subtitleUri: null,
+                    asset: {
+                        id: "video-1",
+                        title: "Video",
+                        uri: "https://gateway.example.test/video.mp4",
+                        durationSeconds: 60,
+                    },
+                }),
+            ),
+        );
+        vi.stubGlobal(
+            "fetch",
+            fetchMock,
+        );
+        render(<PodcastBrowser episodesPage={page} />);
+
+        fireEvent.click(screen.getByRole("button", { name: "Odtwórz" }));
+
+        const panel = await screen.findByTestId("wide-media-player");
+        expect(fetchMock).toHaveBeenCalledWith(
+            expect.stringContaining("preferredKind=video"),
+            expect.objectContaining({ signal: expect.any(AbortSignal) }),
+        );
+        const list = document.querySelector("ul")!;
+        expect(screen.getByTestId("now-playing-panel")).toBeInTheDocument();
+        expect(
+            panel.compareDocumentPosition(list) &
+            Node.DOCUMENT_POSITION_FOLLOWING,
+        ).toBeTruthy();
+
+        await waitFor(() =>
+            expect(HTMLElement.prototype.scrollIntoView).toHaveBeenCalledWith({
+                behavior: "smooth",
+                block: "start",
+            }),
+        );
+
+        vi.mocked(HTMLElement.prototype.scrollIntoView).mockClear();
+        fireEvent.click(
+            screen.getByRole("button", {
+                name: "Powrót",
+            }),
+        );
+        expect(HTMLElement.prototype.scrollIntoView).toHaveBeenCalledWith({
+            behavior: "smooth",
+            block: "center",
+        });
+    });
 
     it("shows all episodes from the loaded page", () => {
         const page: EpisodesPage = {

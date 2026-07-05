@@ -1,6 +1,6 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
-import { Episode } from "./Episode";
+import {fireEvent, render, screen} from "@testing-library/react";
+import {describe, expect, it, vi} from "vitest";
+import {Episode} from "./Episode";
 
 import {EpisodeRm} from "@/lib/types/episode";
 
@@ -22,10 +22,10 @@ const playableEpisode: EpisodeRm = {
 
 describe("Episode", () => {
     it("renders episode metadata and the production link", () => {
-        render(<Episode index={1} episode={playableEpisode}/>);
+        render(<Episode index={1} episode={playableEpisode} onPlay={vi.fn()}/>);
 
         expect(
-            screen.getByRole("link", { name: "Testowy odcinek" }),
+            screen.getByRole("link", {name: "Testowy odcinek"}),
         ).toHaveAttribute(
             "href",
             "https://www.polskieradio.pl/podcasty/testowy-podcast/testowy-odcinek",

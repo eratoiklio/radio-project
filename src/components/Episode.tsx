@@ -29,9 +29,9 @@ export function Episode({episode, onPlay, index}: EpisodeProps) {
     return <>
         <div
             className="aspect-square w-20 shrink-0 overflow-hidden rounded-md bg-zinc-100 sm:w-24 dark:bg-zinc-900">
-            {episode.mainImage?.uri ? (
-                <img src={episode.mainImage.uri}
-                     alt={episode.mainImage.title}
+            {episode.mainImage ? (
+                <img src={episode.mainImage?.uri}
+                     alt={episode.mainImage?.title}
                      className="h-full w-full pbject-cover"
                      loading="lazy"/>
             ) : (

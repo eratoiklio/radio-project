@@ -14,6 +14,8 @@ interface MiniMediaPlayerProps {
     hasVideo: boolean;
     activeFormat: EpisodeMediaKind;
     onFormatChange: (format: EpisodeMediaKind) => void;
+    isCollapsed: boolean;
+    onToggleCollapsed: () => void;
 }
 
 export function MiniMediaPlayer({
@@ -24,6 +26,8 @@ export function MiniMediaPlayer({
                                     hasVideo,
                                     activeFormat,
                                     onFormatChange,
+                                    isCollapsed,
+                                    onToggleCollapsed,
                                 }: MiniMediaPlayerProps) {
     const videoPreviewRef = useRef<HTMLCanvasElement>(null);
     const { renderVideoFrame } = controller;
@@ -51,10 +55,45 @@ export function MiniMediaPlayer({
         <section
             role="region"
             aria-label="Mini odtwarzacz"
-            className={`fixed inset-x-3 bottom-3 z-50 overflow-hidden rounded-lg border border-zinc-200 bg-white/95 p-4 shadow-2xl backdrop-blur transition-transform duration-300 ease-out sm:inset-x-auto sm:right-5 sm:w-[26rem] dark:border-zinc-800 dark:bg-zinc-950/95 translate-x-0`}
+            className={`fixed inset-x-3 bottom-3 z-50 overflow-hidden rounded-lg border border-zinc-200 bg-white/95 p-4 shadow-2xl backdrop-blur transition-transform duration-300 ease-out sm:inset-x-auto sm:right-5 sm:w-[26rem] dark:border-zinc-800 dark:bg-zinc-950/95 ${
+                isCollapsed
+                    ? "translate-x-[calc(100%-3.5rem)]"
+                    : "translate-x-0"
+            }`}
         >
-             <div
-                className={`w-full pl-11 transition-opacity duration-200`}
+            <button
+                type="button"
+                onClick={onToggleCollapsed}
+                aria-label={
+                    isCollapsed ? "Pokaż mini odtwarzacz" : "Ukryj mini odtwarzacz"
+                }
+                aria-expanded={!isCollapsed}
+                className="absolute left-2 top-2 z-10 flex h-10 w-10 items-center justify-center rounded-md border border-zinc-300 bg-white hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-950 dark:hover:bg-zinc-900"
+            >
+                <svg
+                    aria-hidden="true"
+                    viewBox="0 0 24 24"
+                    className="h-5 w-5"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                >
+                    {isCollapsed ? (
+                        <path d="m15 18-6-6 6-6" />
+                    ) : (
+                        <path d="m9 18 6-6-6-6" />
+                    )}
+                </svg>
+            </button>
+
+            <div
+                className={`w-full pl-11 transition-opacity duration-200 ${
+                    isCollapsed ? "opacity-0" : "opacity-100"
+                }`}
+                inert={isCollapsed ? true : undefined}
+                aria-hidden={isCollapsed}
             >
                 {resolvedMedia.type === "video" && (
                     <canvas
