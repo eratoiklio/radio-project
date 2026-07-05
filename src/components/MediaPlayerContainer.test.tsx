@@ -178,4 +178,44 @@ describe("MediaPlayerContainer", () => {
             ),
         ).toBeNull();
     });
+
+    it("supports basic keyboard playback controls", () => {
+        renderContainer();
+        const audio = document.querySelector("audio")!;
+        Object.defineProperties(audio, {
+            duration: { configurable: true, value: 120 },
+            currentTime: { configurable: true, writable: true, value: 20 },
+            muted: { configurable: true, writable: true, value: false },
+        });
+        vi.mocked(HTMLMediaElement.prototype.play).mockClear();
+
+        fireEvent.keyDown(window, { code: "Space", key: " " });
+        expect(HTMLMediaElement.prototype.play).toHaveBeenCalledOnce();
+
+        fireEvent.keyDown(window, { key: "ArrowRight" });
+        expect(audio.currentTime).toBe(25);
+
+        fireEvent.keyDown(window, { key: "ArrowLeft" });
+        expect(audio.currentTime).toBe(20);
+
+        fireEvent.keyDown(window, { key: "m" });
+        expect(audio.muted).toBe(true);
+    });
+
+    it("does not override keyboard behavior on interactive controls", () => {
+        renderContainer();
+        const audio = document.querySelector("audio")!;
+        Object.defineProperty(audio, "currentTime", {
+            configurable: true,
+            writable: true,
+            value: 20,
+        });
+
+        fireEvent.keyDown(screen.getByLabelText("Pozycja odtwarzania"), {
+            key: "ArrowRight",
+        });
+
+        expect(audio.currentTime).toBe(20);
+    });
+
 });

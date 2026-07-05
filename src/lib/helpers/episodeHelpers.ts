@@ -45,7 +45,7 @@ export function buildEpisodePageUrl(
 
 function formatSeconds(value: number | null | undefined): string {
     const totalSeconds =
-        typeof value === "number"
+        typeof value === "number" && Number.isFinite(value)
             ? Math.max(0, Math.floor(value))
             : 0;
     const hours = Math.floor(totalSeconds / 3600);

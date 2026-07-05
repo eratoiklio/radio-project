@@ -21,6 +21,7 @@ export interface MediaPlaybackController {
     togglePlayback: () => Promise<void>;
     pause: () => void;
     seekTo: (value: number) => void;
+    seekBy: (seconds: number) => void;
     changeVolume: (value: number) => void;
     toggleMute: () => void;
     renderVideoFrame: (canvas: HTMLCanvasElement) => boolean;
@@ -185,6 +186,26 @@ export function useMediaPlaybackController(
         }
     }
 
+    function seekBy(seconds: number) {
+        const element = getMediaElement();
+
+        if (!element) {
+            return;
+        }
+
+        const upperBound = Number.isFinite(element.duration)
+            ? element.duration
+            : Number.POSITIVE_INFINITY;
+        const value = Math.min(
+            Math.max(element.currentTime + seconds, 0),
+            upperBound,
+        );
+
+        element.currentTime = value;
+        setCurrentTime(value);
+    }
+
+
     function changeVolume(value: number) {
         const element = getMediaElement();
 
@@ -244,6 +265,7 @@ export function useMediaPlaybackController(
         playbackError,
         togglePlayback,
         pause,
+        seekBy,
         seekTo,
         changeVolume,
         toggleMute,

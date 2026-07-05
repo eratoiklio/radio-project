@@ -85,7 +85,8 @@ describe("PodcastBrowser", () => {
             expect.objectContaining({ signal: expect.any(AbortSignal) }),
         );
         const list = document.querySelector("ul")!;
-        expect(screen.getByTestId("now-playing-panel")).toBeInTheDocument();
+        const nowPlayingPanel = screen.getByTestId("now-playing-panel");
+        expect(nowPlayingPanel).toBeInTheDocument();
         expect(
             panel.compareDocumentPosition(list) &
             Node.DOCUMENT_POSITION_FOLLOWING,
@@ -97,6 +98,7 @@ describe("PodcastBrowser", () => {
                 block: "start",
             }),
         );
+        expect(nowPlayingPanel).toHaveFocus();
 
         vi.mocked(HTMLElement.prototype.scrollIntoView).mockClear();
         fireEvent.click(

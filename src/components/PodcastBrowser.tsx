@@ -9,7 +9,7 @@ import type {
 import type { EpisodeMediaKind } from "@/lib/helpers/episodeHelpers";
 import type { EpisodeRm } from "@/lib/types/episode";
 import type { ResolvedMedia } from "@/lib/types/media";
-import { EpisodeList } from "./EpisodeList";
+import { EpisodeList, getEpisodeElementId } from "./EpisodeList";
 import { MediaPlayerContainer } from "./MediaPlayerContainer";
 
 interface PodcastBrowserProps {
@@ -43,7 +43,10 @@ export function PodcastBrowser({ episodesPage }: PodcastBrowserProps) {
         }
 
         const animationFrame = requestAnimationFrame(() => {
-            nowPlayingRef.current?.scrollIntoView({
+            const panel = nowPlayingRef.current;
+
+            panel?.focus({ preventScroll: true });
+            panel?.scrollIntoView({
                 behavior: "smooth",
                 block: "start",
             });
@@ -112,9 +115,7 @@ export function PodcastBrowser({ episodesPage }: PodcastBrowserProps) {
 
     function returnToEpisode() {
         const episodeElement = returnEpisodeId.current
-            ? document.getElementById(
-                `episode-card-${returnEpisodeId.current}`,
-            )
+            ? document.getElementById(getEpisodeElementId(returnEpisodeId.current))
             : null;
 
         if (episodeElement) {
@@ -171,6 +172,7 @@ export function PodcastBrowser({ episodesPage }: PodcastBrowserProps) {
                     className="mb-10 scroll-mt-6"
                     aria-labelledby="now-playing-heading"
                     data-testid="now-playing-panel"
+                    tabIndex={-1}
                 >
                     <div className="mb-4 flex items-start justify-between gap-4">
                         <div>

@@ -164,7 +164,7 @@ async function readJson(response: Response, operation: string): Promise<unknown>
             );
         }
 
-        const suffix = details;
+        const suffix = details ? `: ${details.slice(0, 300)}` : "";
 
         throw new PolishRadioApiError(
             `Polish Radio API failed to ${operation} (${response.status} ${response.statusText})${suffix}`,

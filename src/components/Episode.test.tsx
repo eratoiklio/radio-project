@@ -1,4 +1,4 @@
-import {fireEvent, render, screen} from "@testing-library/react";
+import {render, screen} from "@testing-library/react";
 import {describe, expect, it, vi} from "vitest";
 import {Episode} from "./Episode";
 
@@ -16,8 +16,8 @@ const playableEpisode: EpisodeRm = {
     externalVideoId: "video-id",
     mainImage: {
         title: "Opis okładki",
-        uri: "https://example.test/image.jpg",
-    },
+        uri: "https://example.test/image.jpg"
+    }
 };
 
 describe("Episode", () => {

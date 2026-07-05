@@ -32,6 +32,37 @@ export function MediaPlayerContainer({
     const controller = useMediaPlaybackController(resolvedMedia);
 
     useEffect(() => {
+        function handleKeyDown(event: KeyboardEvent) {
+            const target = event.target;
+
+            if (
+                target instanceof HTMLElement &&
+                (target.isContentEditable ||
+                    target.matches("button, input, textarea, select, a"))
+            ) {
+                return;
+            }
+
+            if (event.code === "Space") {
+                event.preventDefault();
+                void controller.togglePlayback();
+            } else if (event.key === "ArrowLeft") {
+                event.preventDefault();
+                controller.seekBy(-5);
+            } else if (event.key === "ArrowRight") {
+                event.preventDefault();
+                controller.seekBy(5);
+            } else if (event.key.toLowerCase() === "m") {
+                event.preventDefault();
+                controller.toggleMute();
+            }
+        }
+
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [controller]);
+
+    useEffect(() => {
         const element = mainPlayerRef.current;
 
         if (!element) {

@@ -1,7 +1,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MediaPlayerContainer } from "./MediaPlayerContainer";
-import type { ResolvedMedia } from "../lib/types/media";
+import type { ResolvedMedia } from "@/lib/types/media";
 
 const hlsInstances: Array<{
     loadSource: ReturnType<typeof vi.fn>;
